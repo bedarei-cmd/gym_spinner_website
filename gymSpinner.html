@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Workout Planner</title>
+    <style>
+        /* Your existing CSS remains the same */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            text-align: center;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .setup-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .wheel-section {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .section-title {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #4facfe;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 30px 0;
+            border: 3px solid #4facfe;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        #wheel-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            border-radius: 50%;
+        }
+
+        .spin-button {
+            margin-top: 20px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+            border: none;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .spin-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .spin-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result-section {
+            margin-top: 30px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .result-title {
+            font-size: 1.3rem;
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        .muscle-result {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #4facfe;
+            margin-bottom: 10px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .muscle-sequence {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .muscle-sequence-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 500;
+        }
+
+        .muscle-sequence-item:last-child {
+            border-bottom: none;
+        }
+
+        .exercises-list {
+            text-align: left;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .exercises-list h4 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        .exercises-list ul {
+            list-style-type: none;
+        }
+
+        .exercises-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .exercises-list li:last-child {
+            border-bottom: none;
+        }
+
+        .history-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .history-title {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .history-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #4facfe;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .progress-container {
+            width: 100%;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .progress-text {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid #ff3b30;
+            z-index: 10;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .spinning {
+            animation: spin 2s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💪 Gym Workout Planner</h1>
+            <p>Spin the wheel to discover your workout for today!</p>
+        </div>
+
+        <div class="app-container">
+            <div class="setup-section">
+                <h2 class="section-title">Your Setup</h2>
+                
+                <div class="form-group">
+                    <label>Select Muscle Groups You Train:</label>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="back" name="muscleGroup" value="back">
+                            <label for="back">Back</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="bicep" name="muscleGroup" value="bicep">
+                            <label for="bicep">Bicep</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="chest" name="muscleGroup" value="chest">
+                            <label for="chest">Chest</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="tricep" name="muscleGroup" value="tricep">
+                            <label for="tricep">Tricep</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="shoulders" name="muscleGroup" value="shoulders">
+                            <label for="shoulders">Shoulders</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="legs" name="muscleGroup" value="legs">
+                            <label for="legs">Legs</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="abs" name="muscleGroup" value="abs">
+                            <label for="abs">Abs</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="trainingsPerWeek">How many days do you train per week?</label>
+                    <input type="number" id="trainingsPerWeek" min="1" max="7" value="3">
+                </div>
+
+                <div class="form-group">
+                    <label for="muscleGroupsPerDay">How many muscle groups per day?</label>
+                    <input type="number" id="muscleGroupsPerDay" min="1" max="7" value="2">
+                </div>
+
+                <div class="form-group">
+                    <label for="exercisesPerDay">How many exercises per day?</label>
+                    <input type="number" id="exercisesPerDay" min="1" max="10" value="4">
+                </div>
+
+                <div class="form-group">
+                    <label for="startDay">Week starts on:</label>
+                    <select id="startDay">
+                        <option value="0">Sunday</option>
+                        <option value="1" selected>Monday</option>
+                        <option value="2">Tuesday</option>
+                        <option value="3">Wednesday</option>
+                        <option value="4">Thursday</option>
+                        <option value="5">Friday</option>
+                        <option value="6">Saturday</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" onclick="saveSetup()">Save Setup</button>
+            </div>
+
+            <div class="wheel-section">
+                <h2 class="section-title">Spin the Wheel</h2>
+                
+                <div class="progress-container" id="progressContainer" style="display: none;">
+                    <div class="progress-text" id="progressText">Spinning for Muscle 1...</div>
+                </div>
+                
+                <div class="wheel-container">
+                    <div class="pointer"></div>
+                    <canvas id="wheel-canvas" width="300" height="300"></canvas>
+                </div>
+                
+                <button class="spin-button" onclick="startSpinningSequence()" id="spinBtn">SPIN</button>
+
+                <div class="result-section" id="resultSection" style="display: none;">
+                    <h3 class="result-title">Today's Workout:</h3>
+                    
+                    <div class="muscle-sequence" id="muscleSequence"></div>
+                    
+                    <div class="exercises-list" id="exercisesList">
+                        <h4>Recommended Exercises:</h4>
+                        <div id="exerciseGroups"></div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info" id="infoAlert" style="display: none;">
+                    Please configure your setup first.
+                </div>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <h3 class="history-title">This Week's Schedule</h3>
+            <div id="weekSchedule"></div>
+        </div>
+    </div>
+
+    <script>
+        // Exercise database
+        const exercises = {
+            back: [
+                "Pull-ups", "Bent-over Rows", "Lat Pulldowns", "Deadlifts", 
+                "T-bar Rows", "Seated Rows", "Single-arm Dumbbell Rows",
+                "Face Pulls", "Hyperextensions", "Cable Rows"
+            ],
+            bicep: [
+                "Barbell Curls", "Dumbbell Curls", "Hammer Curls", "Preacher Curls",
+                "Concentration Curls", "Cable Curls", "Incline Dumbbell Curls",
+                "Reverse Curls", "Zottman Curls", "Spider Curls"
+            ],
+            chest: [
+                "Bench Press", "Incline Press", "Decline Press", "Dumbbell Flyes",
+                "Cable Crossovers", "Push-ups", "Dips", "Machine Press",
+                "Pec Deck", "Incline Dumbbell Press"
+            ],
+            tricep: [
+                "Tricep Pushdowns", "Overhead Tricep Extensions", "Skull Crushers",
+                "Close-grip Bench Press", "Tricep Dips", "Kickbacks",
+                "Rope Pushdowns", "Diamond Push-ups", "JM Press", "French Press"
+            ],
+            shoulders: [
+                "Overhead Press", "Lateral Raises", "Front Raises", "Rear Delt Flyes",
+                "Upright Rows", "Shrugs", "Arnold Press", "Face Pulls",
+                "Cable Lateral Raises", "Dumbbell Press"
+            ],
+            legs: [
+                "Squats", "Lunges", "Leg Press", "Leg Extensions",
+                "Leg Curls", "Calf Raises", "Deadlifts", "Bulgarian Split Squats",
+                "Hack Squats", "Step-ups"
+            ],
+            abs: [
+                "Crunches", "Leg Raises", "Plank", "Russian Twists",
+                "Mountain Climbers", "Bicycle Crunches", "Hanging Leg Raises",
+                "Ab Wheel", "Cable Crunches", "V-ups"
+            ]
+        };
+
+        // Color palette for the wheel
+        const colors = [
+            '#FF6B6B', '#4ECDC4', '#45B7D1', '#FDC162', 
+            '#A3A1F6', '#FF9F68', '#6B5B95'
+        ];
+
+        let selectedMuscles = [];
+        let isSpinning = false;
+        let lastTrainedMuscles = [];
+        let currentSpinSequence = 0;
+        let totalSpinsNeeded = 1;
+        let todaysMuscles = [];
+        let wheelCanvas = null;
+        let wheelCtx = null;
+        let currentRotation = 0;
+
+        // Initialize the app
+        function initApp() {
+            loadSavedData();
+            setupWheel();
+            updateWeekSchedule();
+        }
+
+        // Load saved data from localStorage
+        function loadSavedData() {
+            const savedData = localStorage.getItem('gymPlannerData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                
+                // Restore checkboxes
+                document.querySelectorAll('input[name="muscleGroup"]').forEach(checkbox => {
+                    checkbox.checked = data.selectedMuscles.includes(checkbox.value);
+                });
+                
+                // Restore input values
+                document.getElementById('trainingsPerWeek').value = data.trainingsPerWeek || 3;
+                document.getElementById('muscleGroupsPerDay').value = data.muscleGroupsPerDay || 2;
+                document.getElementById('exercisesPerDay').value = data.exercisesPerDay || 4;
+                document.getElementById('startDay').value = data.startDay || 1;
+                
+                lastTrainedMuscles = data.lastTrainedMuscles || [];
+                
+                updateSelectedMuscles();
+            }
+        }
+
+        // Save setup to localStorage
+        function saveSetup() {
+            const data = {
+                selectedMuscles: selectedMuscles,
+                trainingsPerWeek: parseInt(document.getElementById('trainingsPerWeek').value),
+                muscleGroupsPerDay: parseInt(document.getElementById('muscleGroupsPerDay').value),
+                exercisesPerDay: parseInt(document.getElementById('exercisesPerDay').value),
+                startDay: parseInt(document.getElementById('startDay').value),
+                lastTrainedMuscles: lastTrainedMuscles,
+                lastSaveDate: new Date().toDateString()
+            };
+            
+            localStorage.setItem('gymPlannerData', JSON.stringify(data));
+            
+            // Show success message
+            alert('Setup saved successfully!');
+            updateSelectedMuscles();
+        }
+
+        // Update selected muscles array
+        function updateSelectedMuscles() {
+            selectedMuscles = [];
+            document.querySelectorAll('input[name="muscleGroup"]:checked').forEach(checkbox => {
+                selectedMuscles.push(checkbox.value);
+            });
+            
+            // Enable/disable spin button based on selection
+            const spinBtn = document.getElementById('spinBtn');
+            const infoAlert = document.getElementById('infoAlert');
+            
+            if (selectedMuscles.length === 0) {
+                spinBtn.disabled = true;
+                infoAlert.style.display = 'block';
+            } else {
+                spinBtn.disabled = false;
+                infoAlert.style.display = 'none';
+                setupWheel();
+            }
+        }
+
+        // Setup the wheel
+        function setupWheel() {
+            wheelCanvas = document.getElementById('wheel-canvas');
+            wheelCtx = wheelCanvas.getContext('2d');
+            
+            // Clear canvas
+            wheelCtx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+            
+            if (selectedMuscles.length === 0) {
+                // Draw empty wheel
+                wheelCtx.beginPath();
+                wheelCtx.arc(150, 150, 140, 0, 2 * Math.PI);
+                wheelCtx.fillStyle = '#f8f9fa';
+                wheelCtx.fill();
+                wheelCtx.strokeStyle = '#e9ecef';
+                wheelCtx.lineWidth = 2;
+                wheelCtx.stroke();
+                
+                wheelCtx.fillStyle = '#6c757d';
+                wheelCtx.font = '16px Arial';
+                wheelCtx.textAlign = 'center';
+                wheelCtx.fillText('Select muscles first', 150, 150);
+                return;
+            }
+            
+            drawWheel();
+        }
+
+        // Draw the wheel with current rotation
+        function drawWheel() {
+            wheelCtx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+            
+            const centerX = wheelCanvas.width / 2;
+            const centerY = wheelCanvas.height / 2;
+            const radius = Math.min(centerX, centerY) - 10;
+            const sliceAngle = (2 * Math.PI) / selectedMuscles.length;
+            
+            // Save the current context
+            wheelCtx.save();
+            
+            // Move to center and rotate the entire canvas
+            wheelCtx.translate(centerX, centerY);
+            wheelCtx.rotate(currentRotation * Math.PI / 180);
+            
+            // Draw wheel slices
+            selectedMuscles.forEach((muscle, index) => {
+                const startAngle = index * sliceAngle;
+                const endAngle = (index + 1) * sliceAngle;
+                
+                wheelCtx.beginPath();
+                wheelCtx.moveTo(0, 0);
+                wheelCtx.arc(0, 0, radius, startAngle, endAngle);
+                wheelCtx.closePath();
+                
+                wheelCtx.fillStyle = colors[index % colors.length];
+                wheelCtx.fill();
+                wheelCtx.strokeStyle = 'white';
+                wheelCtx.lineWidth = 2;
+                wheelCtx.stroke();
+                
+                // Draw text
+                wheelCtx.save();
+                wheelCtx.rotate(startAngle + sliceAngle / 2);
+                wheelCtx.textAlign = 'right';
+                wheelCtx.fillStyle = 'white';
+                wheelCtx.font = 'bold 14px Arial';
+                wheelCtx.fillText(muscle.charAt(0).toUpperCase() + muscle.slice(1), radius - 15, 4);
+                wheelCtx.restore();
+            });
+            
+            // Draw center circle
+            wheelCtx.beginPath();
+            wheelCtx.arc(0, 0, 15, 0, 2 * Math.PI);
+            wheelCtx.fillStyle = '#333';
+            wheelCtx.fill();
+            wheelCtx.strokeStyle = 'white';
+            wheelCtx.lineWidth = 2;
+            wheelCtx.stroke();
+            
+            // Restore the context
+            wheelCtx.restore();
+        }
+
+        // Start spinning sequence for multiple muscle groups
+        function startSpinningSequence() {
+            if (isSpinning || selectedMuscles.length === 0) return;
+            
+            todaysMuscles = [];
+            currentSpinSequence = 0;
+            totalSpinsNeeded = parseInt(document.getElementById('muscleGroupsPerDay').value);
+            
+            const progressContainer = document.getElementById('progressContainer');
+            const progressText = document.getElementById('progressText');
+            
+            progressContainer.style.display = 'block';
+            progressText.textContent = `Spinning for Muscle 1 of ${totalSpinsNeeded}...`;
+            
+            spinNextMuscle();
+        }
+
+        // Spin for the next muscle in sequence
+        function spinNextMuscle() {
+            if (currentSpinSequence >= totalSpinsNeeded) {
+                finishSpinningSequence();
+                return;
+            }
+            
+            currentSpinSequence++;
+            const progressText = document.getElementById('progressText');
+            progressText.textContent = `Spinning for Muscle ${currentSpinSequence} of ${totalSpinsNeeded}...`;
+            
+            spinWheel();
+        }
+
+        // Spin the wheel for one muscle
+        function spinWheel() {
+            if (isSpinning) return;
+            
+            isSpinning = true;
+            const spinBtn = document.getElementById('spinBtn');
+            spinBtn.disabled = true;
+            
+            // Get available muscles (exclude those already selected today and trained yesterday)
+            const availableMuscles = selectedMuscles.filter(muscle => 
+                !todaysMuscles.includes(muscle) && !lastTrainedMuscles.includes(muscle)
+            );
+            
+            // If no available muscles, allow any except those already selected today
+            const targetMuscles = availableMuscles.length > 0 ? availableMuscles : 
+                selectedMuscles.filter(muscle => !todaysMuscles.includes(muscle));
+            
+            // Choose random target from available muscles
+            const randomIndex = Math.floor(Math.random() * targetMuscles.length);
+            const targetMuscle = targetMuscles[randomIndex];
+            
+            // Calculate rotation to land on target muscle
+            const targetIndex = selectedMuscles.indexOf(targetMuscle);
+            const sliceAngle = 360 / selectedMuscles.length;
+            const targetOffset = (targetIndex * sliceAngle) + (sliceAngle / 2);
+            
+            // Calculate final rotation (3 full rotations + target position)
+            const finalRotation = 1080 + targetOffset;
+            
+            // Animate the wheel spinning
+            animateWheel(finalRotation, targetMuscle);
+        }
+
+        // Animate the wheel spinning
+        function animateWheel(targetRotation, targetMuscle) {
+            const startRotation = currentRotation;
+            const rotationDiff = targetRotation - startRotation;
+            const duration = 3000; // 3 seconds
+            const startTime = performance.now();
+            
+            function animate(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Use easing function for more natural spinning
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                
+                currentRotation = startRotation + (rotationDiff * easeProgress);
+                
+                drawWheel();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    finishSingleSpin(targetMuscle);
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+
+        // Finish single spin and prepare for next
+        function finishSingleSpin(muscle) {
+            isSpinning = false;
+            
+            // Add to today's muscles
+            todaysMuscles.push(muscle);
+            
+            // Reset rotation for next spin (keep it within 360 degrees)
+            currentRotation = currentRotation % 360;
+            
+            // If we have more spins to do, continue sequence
+            if (currentSpinSequence < totalSpinsNeeded) {
+                setTimeout(spinNextMuscle, 500); // Wait before next spin
+            } else {
+                finishSpinningSequence();
+            }
+        }
+
+        // Finish the entire spinning sequence
+        function finishSpinningSequence() {
+            const spinBtn = document.getElementById('spinBtn');
+            spinBtn.disabled = false;
+            
+            const progressContainer = document.getElementById('progressContainer');
+            progressContainer.style.display = 'none';
+            
+            // Update last trained muscles
+            lastTrainedMuscles = [...todaysMuscles];
+            
+            // Save to localStorage
+            const data = JSON.parse(localStorage.getItem('gymPlannerData') || '{}');
+            data.lastTrainedMuscles = lastTrainedMuscles;
+            data.lastWorkoutDate = new Date().toDateString();
+            localStorage.setItem('gymPlannerData', JSON.stringify(data));
+            
+            // Show results
+            showResults();
+            updateWeekSchedule();
+        }
+
+        // Show final results
+        function showResults() {
+            const resultSection = document.getElementById('resultSection');
+            const muscleSequence = document.getElementById('muscleSequence');
+            const exerciseGroups = document.getElementById('exerciseGroups');
+            
+            // Show muscle sequence
+            muscleSequence.innerHTML = '';
+            todaysMuscles.forEach((muscle, index) => {
+                const div = document.createElement('div');
+                div.className = 'muscle-sequence-item';
+                div.textContent = `Muscle ${index + 1}: ${muscle.charAt(0).toUpperCase() + muscle.slice(1)}`;
+                muscleSequence.appendChild(div);
+            });
+            
+            // Show exercises for each muscle
+            exerciseGroups.innerHTML = '';
+            const numExercises = parseInt(document.getElementById('exercisesPerDay').value);
+            
+            todaysMuscles.forEach((muscle, index) => {
+                const muscleDiv = document.createElement('div');
+                muscleDiv.className = 'fade-in';
+                muscleDiv.style.marginBottom = '20px';
+                
+                const muscleTitle = document.createElement('h5');
+                muscleTitle.textContent = `${muscle.charAt(0).toUpperCase() + muscle.slice(1)} Exercises:`;
+                muscleTitle.style.color = '#4facfe';
+                muscleTitle.style.marginBottom = '10px';
+                
+                const exerciseList = document.createElement('ul');
+                
+                // Get random exercises for this muscle
+                const muscleExercises = [...exercises[muscle]];
+                const selectedExercises = [];
+                
+                for (let i = 0; i < Math.min(numExercises, muscleExercises.length); i++) {
+                    const randomIndex = Math.floor(Math.random() * muscleExercises.length);
+                    selectedExercises.push(muscleExercises.splice(randomIndex, 1)[0]);
+                }
+                
+                selectedExercises.forEach(exercise => {
+                    const li = document.createElement('li');
+                    li.textContent = exercise;
+                    exerciseList.appendChild(li);
+                });
+                
+                muscleDiv.appendChild(muscleTitle);
+                muscleDiv.appendChild(exerciseList);
+                exerciseGroups.appendChild(muscleDiv);
+            });
+            
+            resultSection.style.display = 'block';
+        }
+
+        // Update week schedule
+        function updateWeekSchedule() {
+            const scheduleDiv = document.getElementById('weekSchedule');
+            const today = new Date();
+            const startDay = parseInt(document.getElementById('startDay').value);
+            
+            scheduleDiv.innerHTML = '';
+            
+            const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            
+            for (let i = 0; i < 7; i++) {
+                const dayIndex = (startDay + i) % 7;
+                const dayName = daysOfWeek[dayIndex];
+                
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'history-item';
+                
+                if (today.getDay() === dayIndex) {
+                    dayDiv.style.borderLeftColor = '#4facfe';
+                    dayDiv.innerHTML = `<strong>Today - ${dayName}</strong>`;
+                    
+                    if (todaysMuscles.length > 0) {
+                        dayDiv.innerHTML += `<br>Muscles: ${todaysMuscles.map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(', ')}`;
+                    }
+                } else {
+                    dayDiv.innerHTML = `<strong>${dayName}</strong>`;
+                }
+                
+                scheduleDiv.appendChild(dayDiv);
+            }
+        }
+
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+            
+            // Add event listeners to checkboxes
+            document.querySelectorAll('input[name="muscleGroup"]').forEach(checkbox => {
+                checkbox.addEventListener('change', updateSelectedMuscles);
+            });
+            
+            // Add event listeners to number inputs
+            ['trainingsPerWeek', 'muscleGroupsPerDay', 'exercisesPerDay'].forEach(id => {
+                document.getElementById(id).addEventListener('change', saveSetup);
+            });
+            
+            // Add event listener to select
+            document.getElementById('startDay').addEventListener('change', saveSetup);
+        });
+    </script>
+</body>
+</html>
